@@ -1,6 +1,6 @@
 # MCPScan
 
-Free, public directory of MCP servers with transparent security & trust scores. Recrawled daily via GitHub Actions, hosted on GitHub Pages.
+Free, public directory of MCP servers with transparent security & trust scores. Recrawled daily on `main`; the static site is built with `python3 scripts/build.py` and published to the **`gh-pages` branch** by the existing external daily job (not GitHub Actions Pages deploy).
 
 Live: https://saurabh4269.github.io/mcpscan/
 
@@ -22,7 +22,7 @@ npm run preflight --prefix packages/mcp-preflight -- --mcp https://mcp.context7.
 
 Reports include:
 
-1. **Auth** — RFC 8414 authorization-server metadata, protected-resource metadata, DCR (`registration_endpoint`), PKCE S256, scope breadth ([MCP authorization](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization)).
+1. **Auth** — RFC 9728 protected-resource metadata, authorization-server discovery (RFC 8414 / OIDC), Client ID Metadata Documents or optional DCR, plus scope heuristics ([MCP authorization draft](https://modelcontextprotocol.io/specification/draft/basic/authorization)).
 2. **Tool risk map** — read / write / exec / network heuristics and lethal-trifecta flags (private data + untrusted input + egress/exec).
 3. **Prompt-injection scan** — suspicious patterns in tool names/descriptions plus a SHA-256 tool-list fingerprint for change detection.
 4. **Directory readiness** — checklist aligned with [Anthropic MCP connector](https://docs.anthropic.com/en/docs/agents-and-tools/mcp-connector) and [OpenAI MCP](https://platform.openai.com/docs/mcp) public guidance.
@@ -42,7 +42,9 @@ Or reference `action.yml` in this repo from your workflow.
 ### Development
 
 - `scripts/crawl.py` — discovery + scoring (GitHub, official list, npm, OSV.dev)
-- `scripts/build.py` — static site generator (builds Preflight browser bundle)
+- `scripts/build.py` — static site generator (`dist/`, including `preflight.html` and `preflight/preflight-browser.js`)
+- `ops/daily.yml` — reference build-only workflow (manual); does not deploy Pages
+- `.github/workflows/preflight.yml` — PR tests only
 - `packages/mcp-preflight` — CLI + shared check library
 - `npm test --prefix packages/mcp-preflight` — unit + integration tests (hits public Context7, Chrome DevTools MCP, Playwright MCP)
 

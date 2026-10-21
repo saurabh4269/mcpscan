@@ -1,15 +1,17 @@
 import type { AuthReport, DirectoryItem, DirectoryReport, InjectionReport, RepoSignals, ToolsReport } from "./types.js";
+import { MCP_AUTH_SPEC_URL } from "./auth.js";
 
 const CITATIONS = {
-  mcpAuth:
-    "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization",
+  mcpAuth: MCP_AUTH_SPEC_URL,
+  mcpClientRegistration:
+    "https://modelcontextprotocol.io/specification/draft/basic/authorization/client-registration",
+  rfc9728: "https://datatracker.ietf.org/doc/html/rfc9728",
   rfc8414: "https://datatracker.ietf.org/doc/html/rfc8414",
+  rfc8707: "https://datatracker.ietf.org/doc/html/rfc8707",
   rfc7591: "https://datatracker.ietf.org/doc/html/rfc7591",
   anthropicMcp:
     "https://docs.anthropic.com/en/docs/agents-and-tools/mcp-connector",
   openaiMcp: "https://platform.openai.com/docs/mcp",
-  openaiAuth:
-    "https://platform.openai.com/docs/mcp#authentication",
 };
 
 export function buildDirectoryChecklist(
@@ -21,56 +23,71 @@ export function buildDirectoryChecklist(
   const items: DirectoryItem[] = [
     {
       id: "https-transport",
-      title: "Remote server uses HTTPS",
+      title: "Remote MCP endpoint uses HTTPS",
       passed: auth.mcpUrl ? auth.checks.https : false,
       detail: auth.mcpUrl
         ? auth.checks.https
           ? "MCP URL uses TLS."
-          : "HTTP endpoints are rejected for production connector review."
+          : "Use HTTPS for production OAuth and MCP HTTP transports."
         : "Repo-only scan: verify deployed MCP URL is HTTPS before submission.",
       citation: CITATIONS.mcpAuth,
     },
     {
-      id: "oauth-metadata",
-      title: "OAuth authorization-server metadata (RFC 8414)",
-      passed: Boolean(auth.mcpUrl && auth.checks.metadataDiscovery),
+      id: "protected-resource-metadata",
+      title: "OAuth protected-resource metadata (RFC 9728)",
+      passed: Boolean(auth.mcpUrl && auth.checks.protectedResourceMetadata),
       detail: auth.mcpUrl
-        ? auth.checks.metadataDiscovery
-          ? "Metadata document discovered."
-          : "Missing /.well-known/oauth-authorization-server — clients must guess endpoints."
+        ? auth.checks.protectedResourceMetadata
+          ? "Protected-resource metadata document discovered (authorization-server discovery entry point)."
+          : "Missing RFC 9728 metadata — required on MCP servers when OAuth is supported."
+        : "Not tested in browser — run: npx mcp-preflight --mcp <url>",
+      citation: CITATIONS.rfc9728,
+    },
+    {
+      id: "authorization-server-metadata",
+      title: "Authorization-server metadata discoverable",
+      passed: Boolean(auth.mcpUrl && auth.checks.authorizationServerMetadata),
+      detail: auth.mcpUrl
+        ? auth.checks.authorizationServerMetadata
+          ? "RFC 8414 or OpenID Connect Discovery metadata fetched from linked authorization server."
+          : "Could not fetch authorization-server metadata after protected-resource discovery."
         : "Not tested in browser — run: npx mcp-preflight --mcp <url>",
       citation: CITATIONS.rfc8414,
     },
     {
-      id: "dynamic-registration",
-      title: "Dynamic client registration (RFC 7591)",
-      passed: Boolean(auth.mcpUrl && auth.checks.registrationEndpoint),
+      id: "client-onboarding",
+      title: "Automated client onboarding (CIMD or DCR)",
+      passed: Boolean(auth.mcpUrl && auth.checks.automatedClientOnboarding),
       detail: auth.mcpUrl
-        ? auth.checks.registrationEndpoint
-          ? "registration_endpoint present."
-          : "No DCR — common cause of “Incompatible auth server: does not support dynamic client registration”."
+        ? auth.checks.clientIdMetadataDocuments
+          ? "Client ID Metadata Documents supported (preferred)."
+          : auth.checks.dynamicClientRegistration
+            ? "Dynamic Client Registration available (optional legacy fallback)."
+            : "Only pre-registration may be available — valid per MCP but some assistant hosts expect CIMD or DCR."
         : "Not tested in browser — run: npx mcp-preflight --mcp <url>",
-      citation: CITATIONS.rfc7591,
+      citation: CITATIONS.mcpClientRegistration,
     },
     {
-      id: "pkce",
-      title: "PKCE S256 for public clients",
-      passed: Boolean(auth.mcpUrl && auth.checks.pkceS256),
+      id: "resource-indicator",
+      title: "Resource identifier in metadata (informational)",
+      passed: true,
       detail: auth.mcpUrl
-        ? auth.checks.pkceS256
-          ? "S256 listed in code_challenge_methods_supported."
-          : "PKCE S256 not advertised."
-        : "Not tested in browser — run: npx mcp-preflight --mcp <url>",
-      citation: CITATIONS.mcpAuth,
+        ? auth.resourceIndicator
+          ? `resource field: ${auth.resourceIndicator} (RFC 8707 audience binding).`
+          : auth.checks.protectedResourceMetadata
+            ? "Protected-resource metadata has no resource field — clients still send the resource parameter per MCP."
+            : "No protected-resource metadata to inspect."
+        : "Not tested in browser.",
+      citation: CITATIONS.rfc8707,
     },
     {
       id: "scope-breadth",
-      title: "Token scopes are not overly broad",
+      title: "Token scopes appear least-privilege (heuristic)",
       passed: auth.scopeBreadth !== "broad",
-      detail: `Scope breadth: ${auth.scopeBreadth}${
+      detail: `Scope breadth heuristic: ${auth.scopeBreadth}${
         auth.scopesSupported?.length ? ` (${auth.scopesSupported.join(", ")})` : ""
-      }.`,
-      citation: CITATIONS.openaiMcp,
+      }. MCP scope challenges may differ from scopes_supported.`,
+      citation: CITATIONS.mcpAuth,
     },
     {
       id: "tool-surface",

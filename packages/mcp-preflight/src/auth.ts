@@ -1,5 +1,9 @@
 import type { AuthReport } from "./types.js";
 
+/** MCP draft authorization spec (current revision). */
+export const MCP_AUTH_SPEC_URL =
+  "https://modelcontextprotocol.io/specification/draft/basic/authorization";
+
 const MCP_PROTOCOL_HEADER = "2024-11-05";
 
 export function authorizationBaseFromMcpUrl(mcpUrl: string): string {
@@ -41,14 +45,31 @@ function scopeBreadth(scopes: string[] | undefined): AuthReport["scopeBreadth"] 
   return "narrow";
 }
 
+async function discoverAuthorizationServerMetadata(
+  asBase: string,
+): Promise<Record<string, unknown> | null> {
+  const base = asBase.replace(/\/$/, "");
+  const candidates = [
+    `${base}/.well-known/oauth-authorization-server`,
+    `${base}/.well-known/openid-configuration`,
+  ];
+  for (const u of candidates) {
+    const r = await fetchJson(u);
+    if (r.ok && r.json) return r.json;
+  }
+  return null;
+}
+
 export async function probeAuth(mcpUrl: string): Promise<AuthReport> {
   const base = authorizationBaseFromMcpUrl(mcpUrl);
   const notes: string[] = [];
   const https = new URL(mcpUrl).protocol === "https:";
 
+  const resourceParam = encodeURIComponent(mcpUrl);
   const prUrls = [
     `${base}/.well-known/oauth-protected-resource`,
     `${base}/.well-known/oauth-protected-resource${new URL(mcpUrl).pathname}`,
+    `${base}/.well-known/oauth-protected-resource?resource=${resourceParam}`,
   ];
   let protectedResourceMetadata: Record<string, unknown> | null = null;
   for (const u of prUrls) {
@@ -59,35 +80,45 @@ export async function probeAuth(mcpUrl: string): Promise<AuthReport> {
     }
   }
 
-  const asUrls = [
-    `${base}/.well-known/oauth-authorization-server`,
-    `${base}/.well-known/oauth-authorization-server${new URL(mcpUrl).pathname}`,
-  ];
   let authorizationServerMetadata: Record<string, unknown> | null = null;
-  for (const u of asUrls) {
-    const r = await fetchJson(u);
-    if (r.ok && r.json) {
-      authorizationServerMetadata = r.json;
-      break;
+  if (protectedResourceMetadata?.authorization_servers) {
+    const servers = protectedResourceMetadata.authorization_servers as unknown[];
+    for (const entry of servers) {
+      if (typeof entry !== "string") continue;
+      authorizationServerMetadata = await discoverAuthorizationServerMetadata(entry);
+      if (authorizationServerMetadata) break;
     }
   }
 
-  if (!authorizationServerMetadata && protectedResourceMetadata?.authorization_servers) {
-    const servers = protectedResourceMetadata.authorization_servers as unknown[];
-    const first = servers?.[0];
-    if (typeof first === "string") {
-      const r = await fetchJson(`${first.replace(/\/$/, "")}/.well-known/oauth-authorization-server`);
-      if (r.ok && r.json) authorizationServerMetadata = r.json;
+  if (!authorizationServerMetadata) {
+    const legacyAsUrls = [
+      `${base}/.well-known/oauth-authorization-server`,
+      `${base}/.well-known/oauth-authorization-server${new URL(mcpUrl).pathname}`,
+    ];
+    for (const u of legacyAsUrls) {
+      const r = await fetchJson(u);
+      if (r.ok && r.json) {
+        authorizationServerMetadata = r.json;
+        notes.push(
+          "Authorization-server metadata served at MCP host (legacy path). Current MCP spec expects RFC 9728 protected-resource metadata for discovery.",
+        );
+        break;
+      }
     }
   }
 
   const meta = authorizationServerMetadata ?? {};
-  const registrationEndpoint = Boolean(
+  const protectedResourceMetadataPresent = Boolean(protectedResourceMetadata);
+  const authorizationServerMetadataPresent = Boolean(authorizationServerMetadata);
+
+  const clientIdMetadataDocuments = meta.client_id_metadata_document_supported === true;
+  const dynamicClientRegistration = Boolean(
     meta.registration_endpoint || meta.registration_endpoint_uri,
   );
+  const automatedClientOnboarding = clientIdMetadataDocuments || dynamicClientRegistration;
+
   const pkceMethods = (meta.code_challenge_methods_supported as string[] | undefined) ?? [];
-  const pkceS256 = pkceMethods.map((m) => m.toUpperCase()).includes("S256");
-  const metadataDiscovery = Boolean(authorizationServerMetadata);
+  const pkceAdvertised = pkceMethods.map((m) => m.toUpperCase()).includes("S256");
 
   const grantTypes = (meta.grant_types_supported as string[] | undefined) ?? [];
   const oauth21Signals =
@@ -95,30 +126,65 @@ export async function probeAuth(mcpUrl: string): Promise<AuthReport> {
     grantTypes.includes("urn:ietf:params:oauth:grant-type:device_code") ||
     Boolean(meta.token_endpoint);
 
-  const scopesSupported = (meta.scopes_supported as string[] | undefined) ?? undefined;
+  const prScopes = protectedResourceMetadata?.scopes_supported as string[] | undefined;
+  const asScopes = meta.scopes_supported as string[] | undefined;
+  const scopesSupported = prScopes?.length ? prScopes : asScopes;
 
-  if (!https) notes.push("MCP authorization spec requires HTTPS for production endpoints.");
-  if (!metadataDiscovery)
+  const resourceIndicator =
+    typeof protectedResourceMetadata?.resource === "string"
+      ? protectedResourceMetadata.resource
+      : undefined;
+
+  if (!https) {
+    notes.push("OAuth endpoints should use HTTPS (MCP authorization security requirements).");
+  }
+  if (!protectedResourceMetadataPresent) {
     notes.push(
-      "No RFC 8414 authorization-server metadata found; clients fall back to default /authorize, /token, /register paths.",
+      "No RFC 9728 protected-resource metadata found. When this server uses OAuth, MCP requires protected-resource metadata for authorization-server discovery.",
     );
-  if (!registrationEndpoint)
+  } else if (resourceIndicator) {
+    notes.push(`Protected-resource metadata resource identifier: ${resourceIndicator} (RFC 8707 / RFC 9728).`);
+  }
+  if (!authorizationServerMetadataPresent && protectedResourceMetadataPresent) {
     notes.push(
-      "No registration_endpoint in metadata — ChatGPT/Claude often fail with incompatible auth server (no dynamic client registration).",
+      "Protected-resource metadata found but authorization-server metadata could not be fetched (RFC 8414 or OpenID Connect Discovery).",
     );
-  if (!pkceS256) notes.push("PKCE S256 not advertised in code_challenge_methods_supported (required for public OAuth clients).");
+  }
+  if (authorizationServerMetadataPresent && !automatedClientOnboarding) {
+    notes.push(
+      "No Client ID Metadata Documents support and no registration_endpoint — clients may need pre-registered OAuth credentials (allowed by MCP client registration).",
+    );
+  }
+  if (clientIdMetadataDocuments) {
+    notes.push(
+      "Authorization server supports Client ID Metadata Documents (preferred MCP client registration path).",
+    );
+  } else if (dynamicClientRegistration) {
+    notes.push(
+      "Authorization server exposes Dynamic Client Registration (RFC 7591) — optional in current MCP spec; Client ID Metadata Documents are preferred for new implementations.",
+    );
+  }
+  if (!pkceAdvertised) {
+    notes.push(
+      "PKCE S256 not listed in code_challenge_methods_supported (informational). OAuth 2.1 still requires MCP clients to use PKCE; many hosts work without advertising S256.",
+    );
+  }
 
   return {
     mcpUrl,
     authorizationBaseUrl: base,
     protectedResourceMetadata,
     authorizationServerMetadata,
+    resourceIndicator,
     checks: {
-      metadataDiscovery,
+      protectedResourceMetadata: protectedResourceMetadataPresent,
+      authorizationServerMetadata: authorizationServerMetadataPresent,
       https,
-      registrationEndpoint,
-      pkceS256,
+      clientIdMetadataDocuments,
+      dynamicClientRegistration,
+      automatedClientOnboarding,
       oauth21Signals,
+      pkceAdvertised,
     },
     scopesSupported,
     scopeBreadth: scopeBreadth(scopesSupported),

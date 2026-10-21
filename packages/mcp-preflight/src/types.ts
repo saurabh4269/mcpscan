@@ -5,12 +5,23 @@ export interface AuthReport {
   authorizationBaseUrl?: string;
   protectedResourceMetadata?: Record<string, unknown> | null;
   authorizationServerMetadata?: Record<string, unknown> | null;
+  /** Canonical resource URI from RFC 9728 metadata when present. */
+  resourceIndicator?: string;
   checks: {
-    metadataDiscovery: boolean;
+    /** RFC 9728 — required on MCP servers when OAuth is used. */
+    protectedResourceMetadata: boolean;
+    /** RFC 8414 or OpenID Connect Discovery on the authorization server. */
+    authorizationServerMetadata: boolean;
     https: boolean;
-    registrationEndpoint: boolean;
-    pkceS256: boolean;
+    /** client_id_metadata_document_supported (preferred registration). */
+    clientIdMetadataDocuments: boolean;
+    /** registration_endpoint (optional / legacy fallback). */
+    dynamicClientRegistration: boolean;
+    /** CIMD or DCR — either satisfies automated onboarding. */
+    automatedClientOnboarding: boolean;
     oauth21Signals: boolean;
+    /** Informational only — not a spec compliance requirement for servers. */
+    pkceAdvertised: boolean;
   };
   scopesSupported?: string[];
   scopeBreadth: "none" | "narrow" | "moderate" | "broad" | "unknown";

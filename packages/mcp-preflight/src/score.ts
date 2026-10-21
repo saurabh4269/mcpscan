@@ -20,16 +20,18 @@ export function computeScore(
   let authPts = 0;
   if (auth.mcpUrl) {
     authPts += auth.checks.https ? 5 : 0;
-    authPts += auth.checks.metadataDiscovery ? 8 : 0;
-    authPts += auth.checks.registrationEndpoint ? 10 : 0;
-    authPts += auth.checks.pkceS256 ? 7 : 0;
-    authPts += auth.checks.oauth21Signals ? 5 : 0;
-    if (auth.scopeBreadth === "narrow") authPts += 5;
-    else if (auth.scopeBreadth === "moderate") authPts += 3;
+    authPts += auth.checks.protectedResourceMetadata ? 12 : 0;
+    authPts += auth.checks.authorizationServerMetadata ? 8 : 0;
+    authPts += auth.checks.clientIdMetadataDocuments ? 8 : 0;
+    authPts += auth.checks.dynamicClientRegistration && !auth.checks.clientIdMetadataDocuments ? 5 : 0;
+    authPts += auth.checks.oauth21Signals ? 4 : 0;
+    authPts += auth.checks.pkceAdvertised ? 2 : 0;
+    if (auth.scopeBreadth === "narrow") authPts += 3;
+    else if (auth.scopeBreadth === "moderate") authPts += 2;
     else if (auth.scopeBreadth === "broad") authPts += 0;
-    else authPts += 2;
+    else authPts += 1;
   } else {
-    authPts = 15; // repo-only partial credit
+    authPts = 15;
   }
   authPts = Math.min(40, authPts);
 
@@ -77,19 +79,33 @@ export function buildFixList(
   directory: DirectoryReport,
 ): string[] {
   const fixes: string[] = [];
-  if (auth.mcpUrl && !auth.checks.registrationEndpoint)
-    fixes.push("Add OAuth Dynamic Client Registration (registration_endpoint) per RFC 7591 / MCP authorization spec.");
-  if (auth.mcpUrl && !auth.checks.pkceS256)
-    fixes.push("Advertise PKCE S256 in authorization-server metadata (code_challenge_methods_supported).");
-  if (auth.mcpUrl && !auth.checks.metadataDiscovery)
-    fixes.push("Publish RFC 8414 metadata at /.well-known/oauth-authorization-server on the MCP host.");
-  if (auth.scopeBreadth === "broad")
-    fixes.push("Narrow OAuth scopes to least privilege required for each tool.");
-  if (tools.summary.lethalTrifecta > 0)
-    fixes.push("Review lethal-trifecta tools: separate read-private from network/exec paths; require human confirmation.");
-  if (!injection.clean)
+  if (auth.mcpUrl && !auth.checks.protectedResourceMetadata) {
+    fixes.push(
+      "Publish OAuth 2.0 Protected Resource Metadata (RFC 9728) at /.well-known/oauth-protected-resource on the MCP server.",
+    );
+  }
+  if (auth.mcpUrl && !auth.checks.authorizationServerMetadata) {
+    fixes.push(
+      "Ensure authorization-server metadata (RFC 8414 or OpenID Connect Discovery) is reachable from authorization_servers listed in protected-resource metadata.",
+    );
+  }
+  if (auth.mcpUrl && !auth.checks.automatedClientOnboarding) {
+    fixes.push(
+      "Enable Client ID Metadata Documents (client_id_metadata_document_supported) or, for legacy hosts, Dynamic Client Registration (registration_endpoint).",
+    );
+  }
+  if (auth.scopeBreadth === "broad") {
+    fixes.push("Review OAuth scopes against MCP scope-minimization guidance; avoid overly broad scopes_supported.");
+  }
+  if (tools.summary.lethalTrifecta > 0) {
+    fixes.push(
+      "Review lethal-trifecta tools: separate read-private from network/exec paths; require human confirmation.",
+    );
+  }
+  if (!injection.clean) {
     fixes.push("Rewrite tool descriptions to remove instruction-like or hidden text patterns.");
-  for (const item of directory.items.filter((i) => !i.passed)) {
+  }
+  for (const item of directory.items.filter((i) => !i.passed && i.id !== "resource-indicator")) {
     fixes.push(`${item.title}: ${item.detail}`);
   }
   return [...new Set(fixes)].slice(0, 12);

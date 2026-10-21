@@ -43,11 +43,14 @@ describe("computeScore", () => {
     const auth: AuthReport = {
       mcpUrl: "https://x.test/mcp",
       checks: {
-        metadataDiscovery: true,
+        protectedResourceMetadata: true,
+        authorizationServerMetadata: true,
         https: true,
-        registrationEndpoint: true,
-        pkceS256: true,
+        clientIdMetadataDocuments: true,
+        dynamicClientRegistration: false,
+        automatedClientOnboarding: true,
         oauth21Signals: true,
+        pkceAdvertised: true,
       },
       scopeBreadth: "narrow",
       notes: [],

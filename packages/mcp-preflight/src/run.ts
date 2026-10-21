@@ -21,11 +21,14 @@ export async function runPreflight(input: PreflightInput): Promise<PreflightRepo
 
   const auth = input.mcpUrl ? await probeAuth(input.mcpUrl) : {
     checks: {
-      metadataDiscovery: false,
+      protectedResourceMetadata: false,
+      authorizationServerMetadata: false,
       https: false,
-      registrationEndpoint: false,
-      pkceS256: false,
+      clientIdMetadataDocuments: false,
+      dynamicClientRegistration: false,
+      automatedClientOnboarding: false,
       oauth21Signals: false,
+      pkceAdvertised: false,
     },
     scopeBreadth: "unknown" as const,
     notes: ["No MCP URL provided — auth checks require CLI or endpoint URL."],

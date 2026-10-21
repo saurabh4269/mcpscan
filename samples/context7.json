@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-10-21T21:48:03.334Z",
+  "generatedAt": "2026-10-21T21:53:42.787Z",
   "input": {
     "repoUrl": "https://github.com/upstash/context7",
     "mcpUrl": "https://mcp.context7.com/mcp"
@@ -82,23 +82,26 @@
       "client_id_metadata_document_supported": true,
       "authorization_response_iss_parameter_supported": true
     },
+    "resourceIndicator": "https://mcp.context7.com",
     "checks": {
-      "metadataDiscovery": true,
+      "protectedResourceMetadata": true,
+      "authorizationServerMetadata": true,
       "https": true,
-      "registrationEndpoint": true,
-      "pkceS256": true,
-      "oauth21Signals": true
+      "clientIdMetadataDocuments": true,
+      "dynamicClientRegistration": true,
+      "automatedClientOnboarding": true,
+      "oauth21Signals": true,
+      "pkceAdvertised": true
     },
     "scopesSupported": [
-      "openid",
       "profile",
-      "email",
-      "public_metadata",
-      "private_metadata",
-      "offline_access"
+      "email"
     ],
-    "scopeBreadth": "moderate",
-    "notes": []
+    "scopeBreadth": "narrow",
+    "notes": [
+      "Protected-resource metadata resource identifier: https://mcp.context7.com (RFC 8707 / RFC 9728).",
+      "Authorization server supports Client ID Metadata Documents (preferred MCP client registration path)."
+    ]
   },
   "tools": {
     "source": "repo-heuristic",
@@ -192,38 +195,45 @@
     "items": [
       {
         "id": "https-transport",
-        "title": "Remote server uses HTTPS",
+        "title": "Remote MCP endpoint uses HTTPS",
         "passed": true,
         "detail": "MCP URL uses TLS.",
-        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization"
       },
       {
-        "id": "oauth-metadata",
-        "title": "OAuth authorization-server metadata (RFC 8414)",
+        "id": "protected-resource-metadata",
+        "title": "OAuth protected-resource metadata (RFC 9728)",
         "passed": true,
-        "detail": "Metadata document discovered.",
+        "detail": "Protected-resource metadata document discovered (authorization-server discovery entry point).",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc9728"
+      },
+      {
+        "id": "authorization-server-metadata",
+        "title": "Authorization-server metadata discoverable",
+        "passed": true,
+        "detail": "RFC 8414 or OpenID Connect Discovery metadata fetched from linked authorization server.",
         "citation": "https://datatracker.ietf.org/doc/html/rfc8414"
       },
       {
-        "id": "dynamic-registration",
-        "title": "Dynamic client registration (RFC 7591)",
+        "id": "client-onboarding",
+        "title": "Automated client onboarding (CIMD or DCR)",
         "passed": true,
-        "detail": "registration_endpoint present.",
-        "citation": "https://datatracker.ietf.org/doc/html/rfc7591"
+        "detail": "Client ID Metadata Documents supported (preferred).",
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization/client-registration"
       },
       {
-        "id": "pkce",
-        "title": "PKCE S256 for public clients",
+        "id": "resource-indicator",
+        "title": "Resource identifier in metadata (informational)",
         "passed": true,
-        "detail": "S256 listed in code_challenge_methods_supported.",
-        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+        "detail": "resource field: https://mcp.context7.com (RFC 8707 audience binding).",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc8707"
       },
       {
         "id": "scope-breadth",
-        "title": "Token scopes are not overly broad",
+        "title": "Token scopes appear least-privilege (heuristic)",
         "passed": true,
-        "detail": "Scope breadth: moderate (openid, profile, email, public_metadata, private_metadata, offline_access).",
-        "citation": "https://platform.openai.com/docs/mcp"
+        "detail": "Scope breadth heuristic: narrow (profile, email). MCP scope challenges may differ from scopes_supported.",
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization"
       },
       {
         "id": "tool-surface",
@@ -275,8 +285,8 @@
         "citation": "https://platform.openai.com/docs/mcp"
       }
     ],
-    "passed": 12,
-    "total": 12
+    "passed": 13,
+    "total": 13
   },
   "repo": {
     "fullName": "upstash/context7",
@@ -289,10 +299,10 @@
     "description": "Context7 Platform -- Up-to-date docs for AI agents"
   },
   "score": {
-    "total": 98,
+    "total": 100,
     "max": 100,
     "breakdown": {
-      "auth": 38,
+      "auth": 40,
       "tools": 25,
       "injection": 15,
       "directory": 15,

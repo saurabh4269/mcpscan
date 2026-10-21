@@ -15,11 +15,14 @@ export async function runBrowserPreflight(repoUrl: string): Promise<PreflightRep
   const injection = scanToolText(rawTools);
   const auth = {
     checks: {
-      metadataDiscovery: false,
+      protectedResourceMetadata: false,
+      authorizationServerMetadata: false,
       https: false,
-      registrationEndpoint: false,
-      pkceS256: false,
+      clientIdMetadataDocuments: false,
+      dynamicClientRegistration: false,
+      automatedClientOnboarding: false,
       oauth21Signals: false,
+      pkceAdvertised: false,
     },
     scopeBreadth: "unknown" as const,
     notes: ["Browser scan is repo-only. Run npx mcp-preflight --mcp <url> for OAuth metadata and live tools."],

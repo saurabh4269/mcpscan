@@ -12,8 +12,10 @@ export function formatReportMarkdown(r: PreflightReport): string {
 
   lines.push("## Auth");
   for (const [k, v] of Object.entries(r.auth.checks)) {
-    lines.push(`- ${k}: ${v ? "pass" : "fail"}`);
+    const label = k === "pkceAdvertised" ? `${k} (informational)` : k;
+    lines.push(`- ${label}: ${v ? "yes" : "no"}`);
   }
+  if (r.auth.resourceIndicator) lines.push(`- resource indicator: ${r.auth.resourceIndicator}`);
   for (const n of r.auth.notes ?? []) lines.push(`- ${n}`);
   lines.push("");
 

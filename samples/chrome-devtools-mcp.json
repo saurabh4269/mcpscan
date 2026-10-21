@@ -1,16 +1,19 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-10-21T21:48:03.498Z",
+  "generatedAt": "2026-10-21T21:53:42.936Z",
   "input": {
     "repoUrl": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
   },
   "auth": {
     "checks": {
-      "metadataDiscovery": false,
+      "protectedResourceMetadata": false,
+      "authorizationServerMetadata": false,
       "https": false,
-      "registrationEndpoint": false,
-      "pkceS256": false,
-      "oauth21Signals": false
+      "clientIdMetadataDocuments": false,
+      "dynamicClientRegistration": false,
+      "automatedClientOnboarding": false,
+      "oauth21Signals": false,
+      "pkceAdvertised": false
     },
     "scopeBreadth": "unknown",
     "notes": [
@@ -139,38 +142,45 @@
     "items": [
       {
         "id": "https-transport",
-        "title": "Remote server uses HTTPS",
-        "passed": true,
+        "title": "Remote MCP endpoint uses HTTPS",
+        "passed": false,
         "detail": "Repo-only scan: verify deployed MCP URL is HTTPS before submission.",
-        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization"
       },
       {
-        "id": "oauth-metadata",
-        "title": "OAuth authorization-server metadata (RFC 8414)",
-        "passed": true,
-        "detail": "Skipped (no MCP URL). Probe with CLI: npx mcp-preflight <mcp-url>",
+        "id": "protected-resource-metadata",
+        "title": "OAuth protected-resource metadata (RFC 9728)",
+        "passed": false,
+        "detail": "Not tested in browser — run: npx mcp-preflight --mcp <url>",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc9728"
+      },
+      {
+        "id": "authorization-server-metadata",
+        "title": "Authorization-server metadata discoverable",
+        "passed": false,
+        "detail": "Not tested in browser — run: npx mcp-preflight --mcp <url>",
         "citation": "https://datatracker.ietf.org/doc/html/rfc8414"
       },
       {
-        "id": "dynamic-registration",
-        "title": "Dynamic client registration (RFC 7591)",
-        "passed": true,
-        "detail": "Skipped (no MCP URL).",
-        "citation": "https://datatracker.ietf.org/doc/html/rfc7591"
+        "id": "client-onboarding",
+        "title": "Automated client onboarding (CIMD or DCR)",
+        "passed": false,
+        "detail": "Not tested in browser — run: npx mcp-preflight --mcp <url>",
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization/client-registration"
       },
       {
-        "id": "pkce",
-        "title": "PKCE S256 for public clients",
+        "id": "resource-indicator",
+        "title": "Resource identifier in metadata (informational)",
         "passed": true,
-        "detail": "Skipped (no MCP URL).",
-        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+        "detail": "Not tested in browser.",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc8707"
       },
       {
         "id": "scope-breadth",
-        "title": "Token scopes are not overly broad",
+        "title": "Token scopes appear least-privilege (heuristic)",
         "passed": true,
-        "detail": "Scope breadth: unknown.",
-        "citation": "https://platform.openai.com/docs/mcp"
+        "detail": "Scope breadth heuristic: unknown. MCP scope challenges may differ from scopes_supported.",
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization"
       },
       {
         "id": "tool-surface",
@@ -222,8 +232,8 @@
         "citation": "https://platform.openai.com/docs/mcp"
       }
     ],
-    "passed": 12,
-    "total": 12
+    "passed": 9,
+    "total": 13
   },
   "repo": {
     "fullName": "ChromeDevTools/chrome-devtools-mcp",
@@ -239,16 +249,21 @@
     "description": "Chrome DevTools for coding agents"
   },
   "score": {
-    "total": 74,
+    "total": 69,
     "max": 100,
     "breakdown": {
       "auth": 15,
       "tools": 25,
       "injection": 15,
-      "directory": 15,
+      "directory": 10,
       "supplyChain": 4
     },
-    "grade": "C"
+    "grade": "D"
   },
-  "fixes": []
+  "fixes": [
+    "Remote MCP endpoint uses HTTPS: Repo-only scan: verify deployed MCP URL is HTTPS before submission.",
+    "OAuth protected-resource metadata (RFC 9728): Not tested in browser — run: npx mcp-preflight --mcp <url>",
+    "Authorization-server metadata discoverable: Not tested in browser — run: npx mcp-preflight --mcp <url>",
+    "Automated client onboarding (CIMD or DCR): Not tested in browser — run: npx mcp-preflight --mcp <url>"
+  ]
 }
