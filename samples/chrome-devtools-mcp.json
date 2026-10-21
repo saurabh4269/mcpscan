@@ -1,0 +1,254 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-10-21T21:48:03.498Z",
+  "input": {
+    "repoUrl": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
+  },
+  "auth": {
+    "checks": {
+      "metadataDiscovery": false,
+      "https": false,
+      "registrationEndpoint": false,
+      "pkceS256": false,
+      "oauth21Signals": false
+    },
+    "scopeBreadth": "unknown",
+    "notes": [
+      "No MCP URL provided — auth checks require CLI or endpoint URL."
+    ]
+  },
+  "tools": {
+    "source": "repo-heuristic",
+    "fingerprint": "8b7a810bd8165dd3ec77d7e9a9275b4ec1e25a4333ef41900b36d7371666bd7b",
+    "toolCount": 10,
+    "tools": [
+      {
+        "name": "a11y-debugging",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "chrome-devtools",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "chrome-devtools-cli",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "chrome-devtools-mcp",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "cookie-debugging",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "debug-optimize-lcp",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "memory-leak-debugging",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "troubleshooting",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      }
+    ],
+    "summary": {
+      "read": 10,
+      "write": 0,
+      "exec": 0,
+      "network": 0,
+      "lethalTrifecta": 0
+    }
+  },
+  "injection": {
+    "findings": [],
+    "clean": true
+  },
+  "directory": {
+    "items": [
+      {
+        "id": "https-transport",
+        "title": "Remote server uses HTTPS",
+        "passed": true,
+        "detail": "Repo-only scan: verify deployed MCP URL is HTTPS before submission.",
+        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+      },
+      {
+        "id": "oauth-metadata",
+        "title": "OAuth authorization-server metadata (RFC 8414)",
+        "passed": true,
+        "detail": "Skipped (no MCP URL). Probe with CLI: npx mcp-preflight <mcp-url>",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc8414"
+      },
+      {
+        "id": "dynamic-registration",
+        "title": "Dynamic client registration (RFC 7591)",
+        "passed": true,
+        "detail": "Skipped (no MCP URL).",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc7591"
+      },
+      {
+        "id": "pkce",
+        "title": "PKCE S256 for public clients",
+        "passed": true,
+        "detail": "Skipped (no MCP URL).",
+        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+      },
+      {
+        "id": "scope-breadth",
+        "title": "Token scopes are not overly broad",
+        "passed": true,
+        "detail": "Scope breadth: unknown.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "tool-surface",
+        "title": "Tool surface documented and bounded",
+        "passed": true,
+        "detail": "10 tools (fingerprint 8b7a810bd816…).",
+        "citation": "https://docs.anthropic.com/en/docs/agents-and-tools/mcp-connector"
+      },
+      {
+        "id": "lethal-trifecta",
+        "title": "No lethal-trifecta tool combos flagged",
+        "passed": true,
+        "detail": "No private-data + untrusted-input + egress/exec combo detected in heuristics.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "prompt-injection",
+        "title": "Tool names/descriptions free of injection patterns",
+        "passed": true,
+        "detail": "No suspicious instruction-like patterns in tool metadata.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "readme",
+        "title": "README documents purpose and setup",
+        "passed": true,
+        "detail": "README present.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "license",
+        "title": "SPDX license declared",
+        "passed": true,
+        "detail": "License: Apache-2.0",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "security-policy",
+        "title": "SECURITY.md or security contact",
+        "passed": true,
+        "detail": "SECURITY.md found.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "ci",
+        "title": "CI workflow present",
+        "passed": true,
+        "detail": "GitHub Actions workflow detected.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      }
+    ],
+    "passed": 12,
+    "total": 12
+  },
+  "repo": {
+    "fullName": "ChromeDevTools/chrome-devtools-mcp",
+    "defaultBranch": "main",
+    "license": "Apache-2.0",
+    "hasReadme": true,
+    "hasSecurityPolicy": true,
+    "hasCi": true,
+    "riskyPatterns": [
+      "shell_exec",
+      "filesystem_write"
+    ],
+    "description": "Chrome DevTools for coding agents"
+  },
+  "score": {
+    "total": 74,
+    "max": 100,
+    "breakdown": {
+      "auth": 15,
+      "tools": 25,
+      "injection": 15,
+      "directory": 15,
+      "supplyChain": 4
+    },
+    "grade": "C"
+  },
+  "fixes": []
+}

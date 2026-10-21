@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-import json, os, html, shutil
+import json, os, html, shutil, subprocess
 D = json.load(open("data/servers.json")); E = html.escape
 OUT = "dist"; shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT + "/s")
+PF = os.path.join("packages", "mcp-preflight")
+if os.path.isdir(PF):
+    subprocess.run(["npm", "ci", "--prefix", PF], check=False)
+    subprocess.run(["npm", "run", "build", "--prefix", PF], check=False)
 CONTACT = "saurabh42@mail.grokbot.com"
 CSS = """body{font-family:system-ui,sans-serif;max-width:960px;margin:auto;padding:16px;color:#1b1f24;background:#fafbfc}
 a{color:#0b5fff}header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
@@ -14,7 +18,7 @@ def cls(s): return "g" if s >= 70 else "y" if s >= 50 else "r"
 def page(title, body, root=""):
     return f"""<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>{E(title)}</title><meta name=description content="MCPScan: security and trust scores for MCP servers"><style>{CSS}</style>
-<header><h2><a href="{root}index.html" style="text-decoration:none">🛡️ MCPScan</a></h2><nav><a href="{root}index.html">Directory</a> · <a href="{root}methodology.html">Methodology</a></nav></header>
+<header><h2><a href="{root}index.html" style="text-decoration:none">🛡️ MCPScan</a></h2><nav><a href="{root}index.html">Directory</a> · <a href="{root}preflight.html">Preflight</a> · <a href="{root}methodology.html">Methodology</a></nav></header>
 <div class="box sp"><b>Sponsor this site</b> — Your tool here, contact <a href="mailto:{CONTACT}?subject=MCPScan%20sponsorship">{CONTACT}</a></div>
 {body}
 <div class=box><b>Weekly MCP security digest</b> (coming soon). Want it? <a href="mailto:{CONTACT}?subject=Subscribe%20MCPScan%20digest">Email {CONTACT}</a> with subject "Subscribe".</div>
@@ -32,6 +36,7 @@ for s in D["servers"]:
 <div class=box><h3>Signals</h3><ul><li>Risky patterns detected: {E(', '.join(s['risky']) or 'none')}</li><li>Package provenance/attestations: {'yes' if s['provenance'] else 'no'}</li><li>CI workflows: {'yes' if s['has_ci'] else 'no'}</li><li>SECURITY.md: {'yes' if s['has_security_policy'] else 'no'}</li><li>Dependencies checked against OSV.dev: {s['deps_checked']}</li></ul><h4>Known vulnerabilities</h4><ul>{vl}</ul></div>"""
     open(f"{OUT}/s/{s['id']}.html", "w").write(page(s["full_name"] + " – MCPScan", body, "../"))
 idx = f"""<div class=box><h1>Security & trust scores for {D['count']} MCP servers</h1><p>An automated, transparent directory. Every server is re-crawled daily from GitHub, the official MCP servers list and npm, and scored on maintenance, license, popularity, known dependency vulns (OSV.dev), supply-chain signals and risky code patterns.</p>
+<p><b>New:</b> <a href="preflight.html">MCP Security Preflight</a> — paste a GitHub repo (browser) or run <code>npx mcp-preflight</code> for live OAuth + tool probes.</p>
 <input id=q placeholder="Search…" size=30><select id=f><option value="">All</option><option value=o>Official list</option><option value=shell_exec>Uses shell exec</option><option value=v>Has known vulns</option><option value=clean>No risky patterns</option></select><select id=so><option value=s>Sort: score</option><option value=st>Sort: stars</option></select></div>
 <div class=box><table><thead><tr><th>Score</th><th>Server</th><th>⭐</th><th>Flags</th></tr></thead><tbody id=t></tbody></table></div>
 <script>const D={json.dumps(rows)};const c=s=>s>=70?'g':s>=50?'y':'r';
@@ -51,5 +56,18 @@ meth = """<div class=box><h1>Methodology</h1><p>Each score is 0–100, the sum o
 <h3>Discovery</h3><p>GitHub search (topic:mcp-server, topic:model-context-protocol, topic:mcp, "mcp server"), repos linked from the official <a href="https://github.com/modelcontextprotocol/servers">modelcontextprotocol/servers</a> README, and npm packages with keyword mcp-server. Forks are skipped; the top servers by stars are scanned. The crawl runs daily on GitHub Actions.</p>
 <p>Spotted a wrong score? Open an issue on <a href="https://github.com/saurabh4269/mcpscan">GitHub</a>.</p></div>"""
 open(f"{OUT}/methodology.html", "w").write(page("Methodology – MCPScan", meth))
+preflight = """<div class=box><h1>MCP Security Preflight</h1>
+<p>Free check for MCP builders: auth (OAuth 2.1 / PKCE / DCR), per-tool risk map, prompt-injection patterns in tool metadata, directory-readiness checklist, and a deterministic score. Repo analysis runs in your browser via the public GitHub API. Live MCP endpoint probing (metadata + tools) uses the CLI — browsers cannot bypass CORS to arbitrary servers.</p>
+<form id=preflight-form><label>GitHub repo URL <input id=repo-input name=repo size=50 placeholder="https://github.com/owner/mcp-server"></label>
+<button type=submit>Run repo preflight</button></form>
+<p id=status></p>
+<p>Remote MCP URL? Run: <code>npx mcp-preflight --mcp https://your-server/mcp --repo owner/repo</code> (from this repo: <code>npm run preflight --prefix packages/mcp-preflight</code>).</p></div>
+<div class=box><h2>Score <span id=score>—</span></h2><p>Tool-list fingerprint (SHA-256): <code id=fingerprint>—</code></p>
+<table><thead><tr><th>Tool</th><th>Capabilities</th><th>Lethal trifecta</th></tr></thead><tbody id=tools></tbody></table></div>
+<div class=box><h3>Directory readiness</h3><ul id=directory></ul><h3>Recommended fixes</h3><ol id=fixes></ol></div>
+<div class=box><h3>Full JSON report</h3><pre id=raw style="max-height:320px;overflow:auto;font-size:12px"></pre></div>
+<style>li.bad{color:#9a1c1c}li.ok{color:#1a7f37}</style>
+<script type=module src="preflight/preflight-browser.js"></script>"""
+open(f"{OUT}/preflight.html", "w").write(page("MCP Security Preflight – MCPScan", preflight))
 open(f"{OUT}/.nojekyll", "w").write("")
 print("built", D["count"])

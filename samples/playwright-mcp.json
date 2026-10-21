@@ -1,0 +1,369 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-10-21T21:48:03.907Z",
+  "input": {
+    "repoUrl": "https://github.com/microsoft/playwright-mcp"
+  },
+  "auth": {
+    "checks": {
+      "metadataDiscovery": false,
+      "https": false,
+      "registrationEndpoint": false,
+      "pkceS256": false,
+      "oauth21Signals": false
+    },
+    "scopeBreadth": "unknown",
+    "notes": [
+      "No MCP URL provided — auth checks require CLI or endpoint URL."
+    ]
+  },
+  "tools": {
+    "source": "repo-heuristic",
+    "fingerprint": "dcc6db723e9cbd342ac1c39d22c857cd1b5c7dc1cc7ac1628650faa2ba57cf94",
+    "toolCount": 21,
+    "tools": [
+      {
+        "name": "all",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "button",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "colorScheme",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "contrast",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "data",
+        "capabilities": [
+          "read",
+          "network"
+        ],
+        "lethalTrifecta": true,
+        "reasons": [
+          "name/description suggests read access",
+          "name/description suggests network egress"
+        ]
+      },
+      {
+        "name": "doubleClick",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "element",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "element",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "endElement",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "endTarget",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "filename",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "forcedColors",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "level",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "media",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "modifiers",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "paths",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "reducedMotion",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "startElement",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "startTarget",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "target",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "target",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      }
+    ],
+    "summary": {
+      "read": 21,
+      "write": 0,
+      "exec": 0,
+      "network": 1,
+      "lethalTrifecta": 1
+    }
+  },
+  "injection": {
+    "findings": [],
+    "clean": true
+  },
+  "directory": {
+    "items": [
+      {
+        "id": "https-transport",
+        "title": "Remote server uses HTTPS",
+        "passed": true,
+        "detail": "Repo-only scan: verify deployed MCP URL is HTTPS before submission.",
+        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+      },
+      {
+        "id": "oauth-metadata",
+        "title": "OAuth authorization-server metadata (RFC 8414)",
+        "passed": true,
+        "detail": "Skipped (no MCP URL). Probe with CLI: npx mcp-preflight <mcp-url>",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc8414"
+      },
+      {
+        "id": "dynamic-registration",
+        "title": "Dynamic client registration (RFC 7591)",
+        "passed": true,
+        "detail": "Skipped (no MCP URL).",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc7591"
+      },
+      {
+        "id": "pkce",
+        "title": "PKCE S256 for public clients",
+        "passed": true,
+        "detail": "Skipped (no MCP URL).",
+        "citation": "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization"
+      },
+      {
+        "id": "scope-breadth",
+        "title": "Token scopes are not overly broad",
+        "passed": true,
+        "detail": "Scope breadth: unknown.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "tool-surface",
+        "title": "Tool surface documented and bounded",
+        "passed": true,
+        "detail": "21 tools (fingerprint dcc6db723e9c…).",
+        "citation": "https://docs.anthropic.com/en/docs/agents-and-tools/mcp-connector"
+      },
+      {
+        "id": "lethal-trifecta",
+        "title": "No lethal-trifecta tool combos flagged",
+        "passed": false,
+        "detail": "1 tool(s) match lethal-trifecta pattern — document mitigations.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "prompt-injection",
+        "title": "Tool names/descriptions free of injection patterns",
+        "passed": true,
+        "detail": "No suspicious instruction-like patterns in tool metadata.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "readme",
+        "title": "README documents purpose and setup",
+        "passed": true,
+        "detail": "README present.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "license",
+        "title": "SPDX license declared",
+        "passed": true,
+        "detail": "License: Apache-2.0",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "security-policy",
+        "title": "SECURITY.md or security contact",
+        "passed": true,
+        "detail": "SECURITY.md found.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "ci",
+        "title": "CI workflow present",
+        "passed": true,
+        "detail": "GitHub Actions workflow detected.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      }
+    ],
+    "passed": 11,
+    "total": 12
+  },
+  "repo": {
+    "fullName": "microsoft/playwright-mcp",
+    "defaultBranch": "main",
+    "license": "Apache-2.0",
+    "hasReadme": true,
+    "hasSecurityPolicy": true,
+    "hasCi": true,
+    "riskyPatterns": [
+      "shell_exec",
+      "filesystem_write"
+    ],
+    "description": "Playwright MCP server"
+  },
+  "score": {
+    "total": 68,
+    "max": 100,
+    "breakdown": {
+      "auth": 15,
+      "tools": 20,
+      "injection": 15,
+      "directory": 14,
+      "supplyChain": 4
+    },
+    "grade": "D"
+  },
+  "fixes": [
+    "Review lethal-trifecta tools: separate read-private from network/exec paths; require human confirmation.",
+    "No lethal-trifecta tool combos flagged: 1 tool(s) match lethal-trifecta pattern — document mitigations."
+  ]
+}
