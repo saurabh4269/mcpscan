@@ -1,0 +1,22 @@
+<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Methodology – MCPScan</title><meta name=description content="MCPScan: security and trust scores for MCP servers"><style>body{font-family:system-ui,sans-serif;max-width:960px;margin:auto;padding:16px;color:#1b1f24;background:#fafbfc}
+a{color:#0b5fff}header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.box{background:#fff;border:1px solid #dde;border-radius:10px;padding:14px;margin:14px 0}
+.sp{border:2px dashed #f0a400;background:#fffbea}.sc{font-weight:700;padding:2px 8px;border-radius:6px;color:#fff}
+.g{background:#1a7f37}.y{background:#bf8700}.r{background:#cf222e}table{width:100%;border-collapse:collapse}
+td,th{padding:6px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}input,select{padding:8px;margin:4px}
+.tag{font-size:12px;background:#eef;border-radius:4px;padding:1px 5px;margin-right:3px}</style>
+<header><h2><a href="index.html" style="text-decoration:none">🛡️ MCPScan</a></h2><nav><a href="index.html">Directory</a> · <a href="methodology.html">Methodology</a></nav></header>
+<div class="box sp"><b>Sponsor this site</b> — Your tool here, contact <a href="mailto:saurabh42@mail.grokbot.com?subject=MCPScan%20sponsorship">saurabh42@mail.grokbot.com</a></div>
+<div class=box><h1>Methodology</h1><p>Each score is 0–100, the sum of six factors. It's computed automatically from public data and is a heuristic signal, not a security audit.</p>
+<table><tr><th>Factor</th><th>Max</th><th>How</th></tr>
+<tr><td>Maintenance</td><td>25</td><td>Days since last push: ≤30→25, ≤90→18, ≤180→10, ≤365→4, else 0. Archived repos get 0.</td></tr>
+<tr><td>License</td><td>10</td><td>Recognised SPDX license 10; unrecognised/other 3; none 0.</td></tr>
+<tr><td>Popularity</td><td>15</td><td>Stars: ≥1000→15, ≥300→12, ≥100→9, ≥25→6, ≥5→3.</td></tr>
+<tr><td>Dependencies</td><td>20</td><td>Pinned versions from package.json, requirements.txt, pyproject.toml and go.mod checked against the <a href="https://osv.dev">OSV.dev</a> API. 0 vulns→20, ≤2→12, ≤5→5, else 0.</td></tr>
+<tr><td>Supply chain</td><td>10</td><td>npm provenance attestations 6, CI workflows 2, SECURITY.md 2.</td></tr>
+<tr><td>Risky patterns</td><td>20</td><td>Regex scan of the top-level source files. Deductions: shell exec −8, eval/dynamic code −6, filesystem writes −3, outbound network −3. Many legitimate servers need these, so treat this as "capabilities to review" rather than "malicious".</td></tr></table>
+<h3>Discovery</h3><p>GitHub search (topic:mcp-server, topic:model-context-protocol, topic:mcp, "mcp server"), repos linked from the official <a href="https://github.com/modelcontextprotocol/servers">modelcontextprotocol/servers</a> README, and npm packages with keyword mcp-server. Forks are skipped; the top servers by stars are scanned. The crawl runs daily on GitHub Actions.</p>
+<p>Spotted a wrong score? Open an issue on <a href="https://github.com/saurabh4269/mcpscan">GitHub</a>.</p></div>
+<div class=box><b>Weekly MCP security digest</b> (coming soon). Want it? <a href="mailto:saurabh42@mail.grokbot.com?subject=Subscribe%20MCPScan%20digest">Email saurabh42@mail.grokbot.com</a> with subject "Subscribe".</div>
+<footer><small>Updated daily · last crawl 2026-10-30 02:54 UTC · scores are automated heuristics, not an audit · <a href="https://github.com/saurabh4269/mcpscan">source</a></small></footer></html>
