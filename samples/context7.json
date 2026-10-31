@@ -1,0 +1,314 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-10-21T21:53:42.787Z",
+  "input": {
+    "repoUrl": "https://github.com/upstash/context7",
+    "mcpUrl": "https://mcp.context7.com/mcp"
+  },
+  "auth": {
+    "mcpUrl": "https://mcp.context7.com/mcp",
+    "authorizationBaseUrl": "https://mcp.context7.com",
+    "protectedResourceMetadata": {
+      "resource": "https://mcp.context7.com",
+      "authorization_servers": [
+        "https://clerk.context7.com",
+        "https://context7.com"
+      ],
+      "scopes_supported": [
+        "profile",
+        "email"
+      ],
+      "bearer_methods_supported": [
+        "header"
+      ]
+    },
+    "authorizationServerMetadata": {
+      "issuer": "https://clerk.context7.com",
+      "authorization_endpoint": "https://clerk.context7.com/oauth/authorize",
+      "token_endpoint": "https://clerk.context7.com/oauth/token",
+      "revocation_endpoint": "https://clerk.context7.com/oauth/token/revoke",
+      "device_authorization_endpoint": "https://clerk.context7.com/oauth/device_authorization",
+      "jwks_uri": "https://clerk.context7.com/.well-known/jwks.json",
+      "registration_endpoint": "https://clerk.context7.com/oauth/register",
+      "response_types_supported": [
+        "code"
+      ],
+      "grant_types_supported": [
+        "authorization_code",
+        "refresh_token",
+        "urn:ietf:params:oauth:grant-type:device_code"
+      ],
+      "token_endpoint_auth_methods_supported": [
+        "client_secret_basic",
+        "none",
+        "client_secret_post"
+      ],
+      "scopes_supported": [
+        "openid",
+        "profile",
+        "email",
+        "public_metadata",
+        "private_metadata",
+        "offline_access"
+      ],
+      "subject_types_supported": [
+        "public"
+      ],
+      "id_token_signing_alg_values_supported": [
+        "RS256"
+      ],
+      "claims_supported": [
+        "aud",
+        "email",
+        "email_verified",
+        "exp",
+        "family_name",
+        "given_name",
+        "iat",
+        "iss",
+        "name",
+        "picture",
+        "preferred_username",
+        "sub"
+      ],
+      "service_documentation": "https://clerk.com/docs/oauth/scoped-access",
+      "ui_locales_supported": [
+        "en"
+      ],
+      "op_tos_uri": "https://clerk.com/legal/standard-terms",
+      "code_challenge_methods_supported": [
+        "S256"
+      ],
+      "client_id_metadata_document_supported": true,
+      "authorization_response_iss_parameter_supported": true
+    },
+    "resourceIndicator": "https://mcp.context7.com",
+    "checks": {
+      "protectedResourceMetadata": true,
+      "authorizationServerMetadata": true,
+      "https": true,
+      "clientIdMetadataDocuments": true,
+      "dynamicClientRegistration": true,
+      "automatedClientOnboarding": true,
+      "oauth21Signals": true,
+      "pkceAdvertised": true
+    },
+    "scopesSupported": [
+      "profile",
+      "email"
+    ],
+    "scopeBreadth": "narrow",
+    "notes": [
+      "Protected-resource metadata resource identifier: https://mcp.context7.com (RFC 8707 / RFC 9728).",
+      "Authorization server supports Client ID Metadata Documents (preferred MCP client registration path)."
+    ]
+  },
+  "tools": {
+    "source": "repo-heuristic",
+    "fingerprint": "c7f0d3bb0b552e7f06c46c8acf216a86e7d5bd5ad823a1fdaec25f11ad3e75ff",
+    "toolCount": 7,
+    "tools": [
+      {
+        "name": "ctx7",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "language",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "libraryId",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "libraryName",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      },
+      {
+        "name": "query",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "name/description suggests read access"
+        ]
+      },
+      {
+        "name": "query-docs",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "name/description suggests read access"
+        ]
+      },
+      {
+        "name": "resolve-library-id",
+        "capabilities": [
+          "read"
+        ],
+        "lethalTrifecta": false,
+        "reasons": [
+          "default: treat unknown tools as read-capable until reviewed"
+        ]
+      }
+    ],
+    "summary": {
+      "read": 7,
+      "write": 0,
+      "exec": 0,
+      "network": 0,
+      "lethalTrifecta": 0
+    }
+  },
+  "injection": {
+    "findings": [],
+    "clean": true
+  },
+  "directory": {
+    "items": [
+      {
+        "id": "https-transport",
+        "title": "Remote MCP endpoint uses HTTPS",
+        "passed": true,
+        "detail": "MCP URL uses TLS.",
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization"
+      },
+      {
+        "id": "protected-resource-metadata",
+        "title": "OAuth protected-resource metadata (RFC 9728)",
+        "passed": true,
+        "detail": "Protected-resource metadata document discovered (authorization-server discovery entry point).",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc9728"
+      },
+      {
+        "id": "authorization-server-metadata",
+        "title": "Authorization-server metadata discoverable",
+        "passed": true,
+        "detail": "RFC 8414 or OpenID Connect Discovery metadata fetched from linked authorization server.",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc8414"
+      },
+      {
+        "id": "client-onboarding",
+        "title": "Automated client onboarding (CIMD or DCR)",
+        "passed": true,
+        "detail": "Client ID Metadata Documents supported (preferred).",
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization/client-registration"
+      },
+      {
+        "id": "resource-indicator",
+        "title": "Resource identifier in metadata (informational)",
+        "passed": true,
+        "detail": "resource field: https://mcp.context7.com (RFC 8707 audience binding).",
+        "citation": "https://datatracker.ietf.org/doc/html/rfc8707"
+      },
+      {
+        "id": "scope-breadth",
+        "title": "Token scopes appear least-privilege (heuristic)",
+        "passed": true,
+        "detail": "Scope breadth heuristic: narrow (profile, email). MCP scope challenges may differ from scopes_supported.",
+        "citation": "https://modelcontextprotocol.io/specification/draft/basic/authorization"
+      },
+      {
+        "id": "tool-surface",
+        "title": "Tool surface documented and bounded",
+        "passed": true,
+        "detail": "7 tools (fingerprint c7f0d3bb0b55…).",
+        "citation": "https://docs.anthropic.com/en/docs/agents-and-tools/mcp-connector"
+      },
+      {
+        "id": "lethal-trifecta",
+        "title": "No lethal-trifecta tool combos flagged",
+        "passed": true,
+        "detail": "No private-data + untrusted-input + egress/exec combo detected in heuristics.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "prompt-injection",
+        "title": "Tool names/descriptions free of injection patterns",
+        "passed": true,
+        "detail": "No suspicious instruction-like patterns in tool metadata.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "readme",
+        "title": "README documents purpose and setup",
+        "passed": true,
+        "detail": "README present.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "license",
+        "title": "SPDX license declared",
+        "passed": true,
+        "detail": "License: MIT",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "security-policy",
+        "title": "SECURITY.md or security contact",
+        "passed": true,
+        "detail": "SECURITY.md found.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      },
+      {
+        "id": "ci",
+        "title": "CI workflow present",
+        "passed": true,
+        "detail": "GitHub Actions workflow detected.",
+        "citation": "https://platform.openai.com/docs/mcp"
+      }
+    ],
+    "passed": 13,
+    "total": 13
+  },
+  "repo": {
+    "fullName": "upstash/context7",
+    "defaultBranch": "master",
+    "license": "MIT",
+    "hasReadme": true,
+    "hasSecurityPolicy": true,
+    "hasCi": true,
+    "riskyPatterns": [],
+    "description": "Context7 Platform -- Up-to-date docs for AI agents"
+  },
+  "score": {
+    "total": 100,
+    "max": 100,
+    "breakdown": {
+      "auth": 40,
+      "tools": 25,
+      "injection": 15,
+      "directory": 15,
+      "supplyChain": 5
+    },
+    "grade": "A"
+  },
+  "fixes": []
+}

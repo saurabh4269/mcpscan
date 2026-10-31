@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """MCPScan crawler: discovers MCP servers and computes a transparent trust score."""
 import json, os, re, sys, time, urllib.request, urllib.parse, datetime, base64
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 NOW = datetime.datetime.now(datetime.timezone.utc)
 MAX = int(os.environ.get("MAX_SERVERS", "250"))
@@ -56,12 +57,7 @@ def discover():
             if it and "full_name" in it: repos[it["full_name"].lower()] = it
     return repos, official, npm
 
-RISKY = {
-    "shell_exec": r"child_process|execSync|spawn\(|subprocess\.|os\.system|exec\.Command|shell=True",
-    "network": r"fetch\(|axios|requests\.(get|post)|httpx|urllib\.request|http\.Get|aiohttp",
-    "filesystem_write": r"writeFile|fs\.write|open\([^)]*['\"]w|os\.remove|unlink\(|rmSync",
-    "eval": r"\beval\(|new Function\(|\bexec\(",
-}
+from mcpscan_lib import RISKY, risky_from_text
 
 def code_scan(full, branch):
     tree = get(f"https://api.github.com/repos/{full}/git/trees/{branch}?recursive=1") or {}
@@ -72,8 +68,7 @@ def code_scan(full, branch):
     for f in src[:6]:
         t = get(f"https://raw.githubusercontent.com/{full}/{branch}/{f}", raw=True) or ""
         text += t[:200000]
-    for k, rx in RISKY.items():
-        if re.search(rx, text): found.add(k)
+    found = risky_from_text(text)
     manifests = {}
     for f in ("package.json", "requirements.txt", "pyproject.toml", "go.mod"):
         if f in files:
@@ -128,8 +123,8 @@ def score(s):
     n = len(s["vulns"])
     b["dependencies"] = 20 if n == 0 else 12 if n <= 2 else 5 if n <= 5 else 0
     b["supply_chain"] = (6 if s["provenance"] else 0) + (2 if s["has_ci"] else 0) + (2 if s["has_security_policy"] else 0)
-    pen = {"shell_exec": 8, "eval": 6, "filesystem_write": 3, "network": 3}
-    b["risky_patterns"] = max(0, 20 - sum(pen[k] for k in s["risky"]))
+    from mcpscan_lib import RISK_PENALTIES
+    b["risky_patterns"] = max(0, 20 - sum(RISK_PENALTIES.get(k, 0) for k in s["risky"]))
     if s["archived"]: b["maintenance"] = 0
     return sum(b.values()), b
 
