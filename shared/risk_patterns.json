@@ -1,0 +1,14 @@
+{
+  "patterns": {
+    "shell_exec": "child_process|execSync|spawn\\(|subprocess\\.|os\\.system|exec\\.Command|shell=True",
+    "network": "fetch\\(|axios|requests\\.(get|post)|httpx|urllib\\.request|http\\.Get|aiohttp",
+    "filesystem_write": "writeFile|fs\\.write|open\\([^)]*['\"]w|os\\.remove|unlink\\(|rmSync",
+    "eval": "\\beval\\(|new Function\\(|\\bexec\\("
+  },
+  "penalties": {
+    "shell_exec": 8,
+    "eval": 6,
+    "filesystem_write": 3,
+    "network": 3
+  }
+}
