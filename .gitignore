@@ -1,2 +1,5 @@
+node_modules/
 dist/
-crawl.log
+packages/mcp-preflight/dist/
+*.pyc
+__pycache__/

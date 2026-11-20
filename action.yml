@@ -1,0 +1,41 @@
+name: MCP Security Preflight
+description: Run MCP Security Preflight on a repo and/or remote MCP URL; comment markdown report on the PR.
+inputs:
+  repo-url:
+    description: GitHub repository URL (optional)
+    required: false
+  mcp-url:
+    description: Remote MCP endpoint URL (optional)
+    required: false
+  github-token:
+    description: Token for PR comments
+    required: true
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with: {node-version: "22"}
+    - shell: bash
+      run: |
+        npm ci --prefix packages/mcp-preflight
+        npm run build --prefix packages/mcp-preflight
+        ARGS=""
+        [ -n "${{ inputs.repo-url }}" ] && ARGS="$ARGS --repo ${{ inputs.repo-url }}"
+        [ -n "${{ inputs.mcp-url }}" ] && ARGS="$ARGS --mcp ${{ inputs.mcp-url }}"
+        if [ -z "$ARGS" ]; then echo "Provide repo-url or mcp-url"; exit 1; fi
+        node packages/mcp-preflight/dist/cli.js $ARGS --json > preflight-report.json
+        node packages/mcp-preflight/dist/cli.js $ARGS > preflight-report.md
+    - uses: actions/github-script@v7
+      if: github.event_name == 'pull_request'
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+          const body = '## MCP Security Preflight\n\n' + fs.readFileSync('preflight-report.md', 'utf8');
+          github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body,
+          });
